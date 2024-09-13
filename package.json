@@ -1,0 +1,16 @@
+{
+  "scripts": {
+    "dev": "npx ts-node src/interface-adapters/controllers/google-keyword-tracker/process-keywords.controller.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "prisma": "^5.19.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "inversify": "^6.0.2",
+    "reflect-metadata": "^0.2.2"
+  }
+}

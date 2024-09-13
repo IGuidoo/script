@@ -1,0 +1,237 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// Authorization
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(USER)
+  accounts      Account[]
+  loginProvider String?
+  website       Website[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  userId  String?
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+// Massive app
+model Website {
+  id          String   @id @default(cuid())
+  userId      String
+  websiteName String
+  domainUrl   String
+  gscUrl      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  location Location[]
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Location {
+  id                   String   @id @default(cuid())
+  websiteId            String
+  keywordTrackerToolId String?
+  language             String
+  languageCode         String
+  country              String
+  location             String?
+  locationCode         String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  website                  Website                   @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  googleKeywordTrackerTool GoogleKeywordTrackerTool?
+}
+
+// Google Keyword Tracker
+enum Status {
+  ACTIVE
+  PAUSED
+  PENDING
+}
+model GoogleKeywordTrackerTool {
+  id          String                             @id @default(cuid())
+  locationId  String                             @unique
+  status      Status                             @default(PENDING)
+  refresh     DayOfWeek[]
+  keywords    GoogleKeywordTrackerKeyword[]
+  stats       GoogleKeywordTrackerProjectStats[]
+  competitors GoogleKeywordTrackerCompetitor[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
+
+model GoogleKeywordTrackerKeyword {
+  id                         String   @id @default(cuid())
+  googleKeywordTrackerToolId String
+  keyword                    String
+  createdAt                  DateTime @default(now())
+
+  googleKeywordTrackerTool GoogleKeywordTrackerTool         @relation(fields: [googleKeywordTrackerToolId], references: [id], onDelete: Cascade)
+  results                  GoogleKeywordTrackerResult[]
+  googleSerpResults        GoogleKeywordTrackerSerpResult[]
+  tags                     GoogleKeywordTrackerKeywordTag[]
+  googleAdsKeywordMetrics  GoogleAdsKeywordMetrics[]
+}
+
+model GoogleKeywordTrackerProjectStats {
+  id                         String   @id @default(cuid())
+  googleKeywordTrackerToolId String
+  improved                   Int
+  worsened                   Int
+  total                      Int
+  topThree                   Int
+  topTen                     Int
+  topHundred                 Int
+  noChange                   Int
+  notFound                   Int
+  averagePosition            Int
+  createdAt                  DateTime @default(now())
+
+  GoogleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [googleKeywordTrackerToolId], references: [id], onDelete: Cascade)
+}
+
+model GoogleKeywordTrackerResult {
+  id              String   @id @default(cuid())
+  keywordId       String
+  keywordName     String
+  position        Int?
+  url             String?
+  metaTitle       String?
+  metaDescription String?
+  firstPosition   Int?
+  bestPosition    Int?
+  latestChange    Int?
+  createdAt       DateTime @default(now())
+
+  relatedSearches Json?
+  peopleAlsoAsk   Json?
+  sitelinks       Json?
+
+  keyword GoogleKeywordTrackerKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+}
+
+model GoogleKeywordTrackerKeywordTag {
+  id       String                        @id @default(cuid())
+  name     String                        @unique
+  keywords GoogleKeywordTrackerKeyword[]
+}
+
+model GoogleKeywordTrackerCompetitor {
+  id         String                                 @id @default(cuid())
+  locationId String
+  domainUrl  String
+  createdAt  DateTime                               @default(now())
+  results    GoogleKeywordTrackerCompetitorResult[]
+
+  googleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
+
+model GoogleKeywordTrackerCompetitorResult {
+  id              String   @id @default(cuid())
+  competitorId    String
+  keywordId       String
+  position        Int?
+  url             String?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+
+  googleKeywordTrackerCompetitor GoogleKeywordTrackerCompetitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+}
+
+model GoogleKeywordTrackerSerpResult {
+  id              String   @id @default(cuid())
+  keywordId       String
+  position        Int
+  url             String
+  metaTitle       String
+  metaDescription String
+  createdAt       DateTime @default(now())
+
+  keyword GoogleKeywordTrackerKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+}
+
+model GoogleAdsKeywordMetrics {
+  id                 String   @id @default(cuid())
+  avgMonthlySearches String?
+  competition        String?
+  competitionIndex   String?
+  highTopOfPageBid   String?
+  lowTopOfPageBid    String?
+  createdAt          DateTime @default(now())
+
+  GoogleKeywordTrackerKeyword GoogleKeywordTrackerKeyword[]
+}
