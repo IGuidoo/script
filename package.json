@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npx ts-node src/interface-adapters/controllers/google-keyword-tracker/process-keywords.controller.ts"
+    "dev": "npx ts-node src/interface-adapters/controllers/google-keyword-tracker/process-google-keywords.controller.ts"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",
@@ -10,7 +10,11 @@
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security",
     "inversify": "^6.0.2",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "zod": "^3.23.8"
   }
 }

@@ -1,16 +1,16 @@
 import { ContainerModule, interfaces } from "inversify";
 import { DI_SYMBOLS } from "../types";
 
-import { IProcessGoogleKeywordsRepository } from "../../application/repositories/process-google-keywords.repository.interface";
-import { ProcessGoogleKeywordsRepository } from "../../infrastructure/repositories/process-google-keywords.repository";
+import { IProcessGoogleKeywordsService } from "../../application/services/process-google-keywords.service.interface";
+import { ProcessGoogleKeywordsRepository } from "../../infrastructure/services/process-google-keywords.service";
 
 
 
-// import { MockUsersRepository } from "@/src/infrastructure/repositories/users.repository.mock";
+// import { MockUsersRepository } from "../../infrastructure/repositories/users.repository.mock";
 
 const initializeModule = (bind: interfaces.Bind) => {
-  bind<IProcessGoogleKeywordsRepository>(DI_SYMBOLS.IProcessGoogleKeywordsRepository).to(ProcessGoogleKeywordsRepository);
+  bind<IProcessGoogleKeywordsService>(DI_SYMBOLS.IProcessGoogleKeywordsService).to(ProcessGoogleKeywordsRepository);
 
 };
 
-export const ProcessGoogleKeywordModule = new ContainerModule(initializeModule);
+export const ProcessGoogleKeywordServiceModule = new ContainerModule(initializeModule);

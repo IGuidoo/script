@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { Website } from "./website";
+import { GoogleKeywordTrackerCompetitor, selectGoogleKeywordTrackerCompetitorCoreSchema } from "./google-keyword-tracker/competitor";
 
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 
@@ -15,6 +17,7 @@ export const DAYS_OF_WEEK: {value: DayOfWeek; label: string}[] = [
 export const selectGoogleKeywordTrackerCoreSchema = z.object({
     id: z.string(),
     locationId: z.string(),
+    websiteId: z.string(),
     status: z.enum(['ACTIVE', 'PAUSED', 'PENDING' ]),
     refresh: z.array(z.enum(['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'])),
     createdAt: z.date(),
@@ -22,20 +25,36 @@ export const selectGoogleKeywordTrackerCoreSchema = z.object({
 
     // keywords: z.array(selectGoogleKeywordTrackerKeywordSchema).nullable(),
     // stats: z.array(selectGoogleKeywordTrackerStatsSchema).nullable(),
-    // competitors: z.array(selectGoogleKeywordTrackerCompetitorSchema).nullable(),
+    competitors: z.array(selectGoogleKeywordTrackerCompetitorCoreSchema).nullable(),
 })
 
 export const googleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.pick({
     id: true,
     locationId: true,
+    websiteId: true,
     status: true,
     refresh: true,
     createdAt: true,
     updatedAt: true,
 });
 
-export type GoogleKeywordTracker = z.infer<typeof selectGoogleKeywordTrackerCoreSchema>;
+export type GoogleKeywordTracker = z.infer<typeof googleKeywordTrackerSchema>;
 
+
+// Backend schemas
+const selectGoogleKeywordTrackerWithCompetitorsSchema = selectGoogleKeywordTrackerCoreSchema.extend({
+    competitors: z.lazy(() => z.array(selectGoogleKeywordTrackerCompetitorCoreSchema)),
+});
+export type GoogleKeywordTrackerWithCompetitors = z.infer<typeof selectGoogleKeywordTrackerWithCompetitorsSchema>;
+export type GoogleKeywordTrackerWithWebsite = z.infer<typeof googleKeywordTrackerSchema & { website: Website }>;
+
+// Backend operation schemas
+const insertGoogleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.pick({
+    locationId: true,
+    websiteId: true,
+    refresh: true,
+});
+export type GoogleKeywordTrackerInsert = z.infer<typeof insertGoogleKeywordTrackerSchema>;
 
 // Fort-end form input schema
 export const formInputCreateGoogleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.extend({

@@ -1,8 +1,8 @@
 import { ContainerModule, interfaces } from "inversify";
 import { DI_SYMBOLS } from "../types";
 
-import { ILocationRepository } from "@/src/application/repositories/location.repository.interface";
-import { LocationRepository } from "@/src/infrastructure/repositories/location.repository";
+import { ILocationRepository } from "../../application/repositories/location.repository.interface";
+import { LocationRepository } from "../../infrastructure/repositories/location.repository";
 
 
 const initializeServiceModule = (bind: interfaces.Bind) => {

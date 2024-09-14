@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { selectLocationSchema } from "./location";
 import { selectUserCoreSchema } from "./user"; // Import the lightweight user schema
+import { selectGoogleKeywordTrackerCoreSchema } from "./google-keyword-tracker";
 
 // Core schema (without user relation)
 const selectWebsiteCoreSchema = z.object({
@@ -17,6 +18,8 @@ const selectWebsiteCoreSchema = z.object({
   updatedAt: z.date(),
   
   location: z.array(selectLocationSchema),
+  // TODO: Check if this is the correct way to define the relation
+  googleKeywordTracker: z.array(selectGoogleKeywordTrackerCoreSchema).optional(),
 });
 
 // Main schema

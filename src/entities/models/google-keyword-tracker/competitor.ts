@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const selectGoogleKeywordTrackerCompetitorCoreSchema = z.object({
     id: z.string(),
-    googleSearchCampaignId: z.string(),
+    googleKeywordTrackerToolId: z.string(),
     domainUrl: z.string(),
     createdAt: z.date(),
     // results: z.array(selectGoogleKeywordTrackerCompetitorResultSchema)
@@ -10,7 +10,7 @@ export const selectGoogleKeywordTrackerCompetitorCoreSchema = z.object({
 
 export const googleKeywordTrackerCompetitorSchema = selectGoogleKeywordTrackerCompetitorCoreSchema.pick({
     id: true,
-    googleSearchCampaignId: true,
+    googleKeywordTrackerToolId: true,
     domainUrl: true,
     createdAt: true,
 });

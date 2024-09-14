@@ -6,10 +6,12 @@ import { UsersRepositoryModule } from "./modules/users.module";
 // import { TokenRepositoryModule, TokenServiceModule } from "./modules/token.module";
 // import { EmailServiceModule } from "./modules/email.module";
 // import { AuthenticationServiceModule } from "./modules/authentication.module";
-// import { WebsiteRepositoryModule } from "./modules/website.module";
-// import { LocationRepositoryModule } from "./modules/location.module";
+import { WebsiteRepositoryModule } from "./modules/website.module";
+import { LocationRepositoryModule } from "./modules/location.module";
 
-import { ProcessGoogleKeywordModule } from "./modules/process-google-keywords.module";
+import { ProcessGoogleKeywordServiceModule } from "./modules/process-google-keywords.module";
+import { GoogleKeywordTrackerRepositoryModule } from "./modules/google-keyword-tracker.module";
+import { SerperApiModule } from "./modules/serper.module";
 
 const ApplicationContainer = new Container({
   defaultScope: "Singleton",
@@ -21,9 +23,11 @@ export const initializeContainer = () => {
   // ApplicationContainer.load(TokenServiceModule);
   // ApplicationContainer.load(TokenRepositoryModule);
   // ApplicationContainer.load(EmailServiceModule);  
-  // ApplicationContainer.load(WebsiteRepositoryModule);
-  // ApplicationContainer.load(LocationRepositoryModule);
-  ApplicationContainer.load(ProcessGoogleKeywordModule);
+  ApplicationContainer.load(WebsiteRepositoryModule);
+  ApplicationContainer.load(LocationRepositoryModule);
+  ApplicationContainer.load(ProcessGoogleKeywordServiceModule);
+  ApplicationContainer.load(GoogleKeywordTrackerRepositoryModule);
+  ApplicationContainer.load(SerperApiModule);
 };
 
 export const destroyContainer = () => {
@@ -32,9 +36,11 @@ export const destroyContainer = () => {
   // ApplicationContainer.unload(TokenServiceModule);
   // ApplicationContainer.unload(TokenRepositoryModule);
   // ApplicationContainer.unload(EmailServiceModule);
-  // ApplicationContainer.unload(WebsiteRepositoryModule);
-  // ApplicationContainer.unload(LocationRepositoryModule);
-  ApplicationContainer.unload(ProcessGoogleKeywordModule);
+  ApplicationContainer.unload(WebsiteRepositoryModule);
+  ApplicationContainer.unload(LocationRepositoryModule);
+  ApplicationContainer.unload(ProcessGoogleKeywordServiceModule);
+  ApplicationContainer.unload(GoogleKeywordTrackerRepositoryModule);
+  ApplicationContainer.unload(SerperApiModule);
 };
 
 if (process.env.NODE_ENV !== "test") {

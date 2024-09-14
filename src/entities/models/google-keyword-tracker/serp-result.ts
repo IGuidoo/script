@@ -11,3 +11,13 @@ export const selectGoogleKeywordTrackerSerpResultCoreSchema = z.object({
 })
 
 export type GoogleKeywordTrackerSerpResult = z.infer<typeof selectGoogleKeywordTrackerSerpResultCoreSchema>;
+
+// Backend operation schemas
+const insertGoogleKeywordTrackerSerpResultSchema = selectGoogleKeywordTrackerSerpResultCoreSchema.pick({
+    keywordId: true,
+    position: true,
+    url: true,
+    metaTitle: true,
+    metaDescription: true,
+});
+export type GoogleKeywordTrackerSerpResultInsert = z.infer<typeof insertGoogleKeywordTrackerSerpResultSchema>;

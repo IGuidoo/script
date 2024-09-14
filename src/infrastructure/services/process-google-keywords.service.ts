@@ -1,9 +1,9 @@
 import { injectable } from "inversify";
 
-import { IProcessGoogleKeywordsRepository } from "@/src/application/repositories/process-google-keywords.repository.interface";
+import { IProcessGoogleKeywordsService } from "../../application/services/process-google-keywords.service.interface";
 
 @injectable()
-export class ProcessGoogleKeywordsRepository implements IProcessGoogleKeywordsRepository {
+export class ProcessGoogleKeywordsRepository implements IProcessGoogleKeywordsService {
     async insertUserResult(result: any): Promise<any> {
         throw new Error("Method not implemented.");
     }

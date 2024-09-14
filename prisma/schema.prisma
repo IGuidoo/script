@@ -42,6 +42,8 @@ model User {
   website       Website[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  credits Int @default(10)
 }
 
 model Account {
@@ -92,8 +94,9 @@ model Website {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  location Location[]
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location                 Location[]
+  googleKeywordTrackerTool GoogleKeywordTrackerTool[]
+  user                     User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Location {
@@ -118,8 +121,10 @@ enum Status {
   PAUSED
   PENDING
 }
+
 model GoogleKeywordTrackerTool {
   id          String                             @id @default(cuid())
+  websiteId   String
   locationId  String                             @unique
   status      Status                             @default(PENDING)
   refresh     DayOfWeek[]
@@ -130,6 +135,7 @@ model GoogleKeywordTrackerTool {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  website  Website  @relation(fields: [websiteId], references: [id])
   location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
@@ -160,7 +166,7 @@ model GoogleKeywordTrackerProjectStats {
   averagePosition            Int
   createdAt                  DateTime @default(now())
 
-  GoogleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [googleKeywordTrackerToolId], references: [id], onDelete: Cascade)
+  googleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [googleKeywordTrackerToolId], references: [id], onDelete: Cascade)
 }
 
 model GoogleKeywordTrackerResult {
@@ -190,13 +196,13 @@ model GoogleKeywordTrackerKeywordTag {
 }
 
 model GoogleKeywordTrackerCompetitor {
-  id         String                                 @id @default(cuid())
-  locationId String
-  domainUrl  String
-  createdAt  DateTime                               @default(now())
-  results    GoogleKeywordTrackerCompetitorResult[]
+  id                         String                                 @id @default(cuid())
+  googleKeywordTrackerToolId String
+  domainUrl                  String
+  createdAt                  DateTime                               @default(now())
+  results                    GoogleKeywordTrackerCompetitorResult[]
 
-  googleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  googleKeywordTrackerTool GoogleKeywordTrackerTool @relation(fields: [googleKeywordTrackerToolId], references: [id], onDelete: Cascade)
 }
 
 model GoogleKeywordTrackerCompetitorResult {
@@ -233,5 +239,5 @@ model GoogleAdsKeywordMetrics {
   lowTopOfPageBid    String?
   createdAt          DateTime @default(now())
 
-  GoogleKeywordTrackerKeyword GoogleKeywordTrackerKeyword[]
+  googleKeywordTrackerKeyword GoogleKeywordTrackerKeyword[]
 }

@@ -18,7 +18,7 @@ export const selectGoogleKeywordTrackerResultCoreSchema = z.object({
     z.object({
       link: z.string(),
       title: z.string(),
-      Snippet: z.string(),
+      snippet: z.string(),
       question: z.string(),
     })
   ).nullable(),
@@ -49,3 +49,38 @@ export const googleKeywordTrackerResultSchema = selectGoogleKeywordTrackerResult
 });
 
 export type GoogleKeywordTrackerResult = z.infer<typeof googleKeywordTrackerResultSchema>;
+
+
+// Backend data transfer objects
+const googleKeywordTrackerResultTransferDTO = selectGoogleKeywordTrackerResultCoreSchema.pick({
+  keywordId: true,
+  keywordName: true,
+  position: true,
+  url: true,
+  metaTitle: true,
+  metaDescription: true,
+  relatedSearches: true,
+  peopleAlsoAsk: true,
+  siteLinks: true,
+});
+export type GoogleKeywordTrackerResultTransferDTO = z.infer<typeof googleKeywordTrackerResultTransferDTO>;
+
+
+// Backend operation schemas
+const insertGoogleKeywordTrackerResultSchema = selectGoogleKeywordTrackerResultCoreSchema.pick({
+  keywordId: true,
+  keywordName: true,
+  position: true,
+  url: true,
+  metaTitle: true,
+  metaDescription: true,
+  firstPosition: true,
+  bestPosition: true,
+  latestChange: true,
+  relatedSearches: true,
+  peopleAlsoAsk: true,
+  siteLinks: true,
+});
+export type GoogleKeywordTrackerResultInsert = z.infer<typeof insertGoogleKeywordTrackerResultSchema>;
+
+
