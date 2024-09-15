@@ -29,6 +29,18 @@ export class UsersRepository implements IUsersRepository {
     }
   }
 
+  async deductCredits(userId: string, credits: number): Promise<void> {
+    try {
+      const user = await db.user.update({
+        where: { id: userId },
+        data: { credits: { decrement: credits } },
+      });
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getByEmail(email: string): Promise<User | null> {
     try {
       const user = await db.user.findUnique({

@@ -1,12 +1,11 @@
 import { injectable } from "inversify";
 
+import { SERPER_API_RESPONSE } from "./serperRes";
+import { ISerperApi } from "../../application/api/serper.api.interface";
+
 import { GoogleKeywordTrackerKeyword } from "../../entities/models/google-keyword-tracker/keyword";
 
-import { ISerperApi } from "../../application/api/serper.api.interface";
-import axios from "axios";
-import { SERPER_API_RESPONSE } from "./serperRes";
-import { InitialSerpApiResponse, SuccessfulSerpApiFetches } from "./serper.api";
-import { GoogleKeywordTrackerCompetitor } from "@prisma/client";
+import { InitialSerpApiResponse, SuccessfulSerpApiFetches } from "../../application/api/serper.api.types";
 
 @injectable()
 export class MockSerperApi implements ISerperApi {
@@ -14,16 +13,26 @@ export class MockSerperApi implements ISerperApi {
     keywords: GoogleKeywordTrackerKeyword[],
     country: string,
     language: string,
-    location?: string,
+    location: string | null,
     numberOfResults: number = 100
   ): Promise<SuccessfulSerpApiFetches[] | undefined> {
 
     console.log('mocking fetchSerpData');
     console.log('data w/o keywords', country, language, location, numberOfResults);
 
-    return SERPER_API_RESPONSE.map((data: InitialSerpApiResponse, index : number) => ({
+    // Ensure keywords array is correctly populated
+    if (!keywords || keywords.length === 0) {
+      throw new Error("Keywords array is empty or undefined");
+    }
+
+    // Ensure the number of keywords matches the number of items in the response
+    if (SERPER_API_RESPONSE.length !== keywords.length) {
+      throw new Error("Mismatch between number of keywords and SERP API response items");
+    }
+
+    return SERPER_API_RESPONSE.map((data: InitialSerpApiResponse, index: number) => ({
       ...data,
-      keyword: keywords[index]
+      keyword: keywords[index],
     }));
   }
 }

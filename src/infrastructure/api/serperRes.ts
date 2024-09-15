@@ -1,4 +1,5 @@
-import { InitialSerpApiResponse } from "./serper.api";
+import { InitialSerpApiResponse } from "../../application/api/serper.api.types";
+
 
 export const SERPER_API_RESPONSE: InitialSerpApiResponse[] = [
   {

@@ -184,7 +184,7 @@ model GoogleKeywordTrackerResult {
 
   relatedSearches Json?
   peopleAlsoAsk   Json?
-  sitelinks       Json?
+  siteLinks       Json?
 
   keyword GoogleKeywordTrackerKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
 }

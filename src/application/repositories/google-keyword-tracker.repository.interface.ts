@@ -1,5 +1,6 @@
 import { GoogleKeywordTrackerKeyword } from "../../entities/models/google-keyword-tracker/keyword";
-import { GoogleKeywordTracker, GoogleKeywordTrackerWithCompetitors, GoogleKeywordTrackerWithWebsite } from "../../entities/models/google-keyword-tracker";
+import { GoogleKeywordTracker, GoogleKeywordTrackerWithCompetitors, GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation, GoogleKeywordTrackerWithWebsite } from "../../entities/models/google-keyword-tracker";
+import { GoogleKeywordTrackerResult } from "../../entities/models/google-keyword-tracker/result";
 
 export interface IGoogleKeywordTrackerRepository {
     insert(inputSchema: any): Promise<any>;
@@ -9,6 +10,10 @@ export interface IGoogleKeywordTrackerRepository {
     findById(id: string): Promise<GoogleKeywordTracker | null>;
     findByIdWithWebsite(id: string): Promise<GoogleKeywordTrackerWithWebsite | null>;
     findByIdWithCompetitors(id: string): Promise<GoogleKeywordTrackerWithCompetitors| null>;
+    findByIdWithCompetitorsWebsiteAndLocation(id: string): Promise<GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation | null>;
+    findAllWithCompetitorsWebsiteAndLocation(): Promise<GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation[]>;
 
+    findKeywordsByToolId(googleKeywordTrackerId: string): Promise<GoogleKeywordTrackerKeyword[]>
+    findLatestResultsByKeywordIds(keywordIds: string[]): Promise<GoogleKeywordTrackerResult[]>;
     addKeywords(googleKeywordTrackerToolId: string, keywords: string[]): Promise<GoogleKeywordTrackerKeyword[]>;
 }

@@ -15,6 +15,15 @@ export interface IUsersRepository {
   create(email: string, password: string, name: string): Promise<User>;
 
   /**
+   * Deducts credits from a user.
+   * @param userId - The ID of the user.
+   * @param credits - The number of credits to deduct.
+   * @throws {DatabaseOperationError} if the user is not found.
+   * @returns A promise that resolves when the credits are deducted.
+   */
+  deductCredits(userId: string, credits: number): Promise<void>;
+
+  /**
    * Retrieves a user by their email.
    * @param email - The email of the user.
    * @returns A promise that resolves to the found user, or null if not found.

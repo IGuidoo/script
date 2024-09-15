@@ -1,8 +1,16 @@
 import { getInjection } from "../../../di/container";
-import { User } from "../../../entities/models/user";
-import { NotFoundError } from "../../../entities/errors/common";
-import { ProcessGoogleKeywordsUseCase } from "../process-google-keywords.use-case";
 
+import { DatabaseOperationError, NotFoundError } from "../../../entities/errors/common";
+import { InsufficientCreditsError } from "../../../entities/errors/credits";
+
+import { User } from "../../../entities/models/user";
+
+import { SerpResultMapper } from "../../../interface-adapters/mappers/serp-result.mapper";
+
+const BATCH_SIZE = 99;
+function delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
+}
 
 export async function processNewGoogleKeywordUseCase( 
     googleKeywordTrackerToolId: string,
@@ -11,16 +19,21 @@ export async function processNewGoogleKeywordUseCase(
 ) {
     const googleKeywordTrackerRepository = getInjection('IGoogleKeywordTrackerRepository');
     const websiteRepository = getInjection('IWebsiteRepository');
+    const processGoogleKeywordsService = getInjection('IProcessGoogleKeywordsService');
+    const usersRepository = getInjection('IUsersRepository');
 
     //Check if user has enough credits
     if (user.credits < keywords.length) {
-        throw new Error('Not enough credits');
+        throw new InsufficientCreditsError('Not enough credits');
     }
 
     // Create keywords
-    const gooogleKeywordTrackerKeywords = await googleKeywordTrackerRepository.addKeywords(googleKeywordTrackerToolId, keywords);
+    const googleKeywordTrackerKeywords = await googleKeywordTrackerRepository.addKeywords(googleKeywordTrackerToolId, keywords);
+    if (!googleKeywordTrackerKeywords) {
+        throw new DatabaseOperationError('Failed to add keywords');
+    }
 
-    const googleKeywordTrackerTool = await googleKeywordTrackerRepository.findByIdWithCompetitors(googleKeywordTrackerToolId);
+    const googleKeywordTrackerTool = await googleKeywordTrackerRepository.findByIdWithCompetitorsWebsiteAndLocation(googleKeywordTrackerToolId);
     if (!googleKeywordTrackerTool) {
         throw new NotFoundError('Google keyword tracker tool not found');
     }
@@ -29,17 +42,31 @@ export async function processNewGoogleKeywordUseCase(
     if (!website) {
         throw new NotFoundError('Website not found');
     }
+    
 
-    const serperApi = getInjection('ISerperApi');
-    const processGoogleKeywordsUseCase = new ProcessGoogleKeywordsUseCase(serperApi);
 
-    const userResults = await processGoogleKeywordsUseCase.execute({
-        website,
-        googleKeywordTrackerTool,
-        keywords: gooogleKeywordTrackerKeywords
-    });
+    // Process keywords
+    const batchPromises = [];
 
-    // Deduct credits from user
+    for (let i = 0; i < googleKeywordTrackerKeywords.length; i += BATCH_SIZE) {
+        const batch = googleKeywordTrackerKeywords.slice(i, i + BATCH_SIZE);
 
-    console.log(userResults);
+        const batchPromise = delay(i / BATCH_SIZE * 1000).then(() => processGoogleKeywordsService.execute(googleKeywordTrackerTool, batch));
+        batchPromises.push(batchPromise);
+    }
+
+    const batchResults = await Promise.all(batchPromises);
+    const results = batchResults.flat();
+
+    // Format results
+    const formattedResultsInserDTO = SerpResultMapper.toNewUserSerpResultInsertDTO(results)
+
+    // Insert results
+    await processGoogleKeywordsService.insertUserResult(formattedResultsInserDTO);
+
+    // Deduct credits
+    await usersRepository.deductCredits(user.id, results.length);
+    
+
+    return results;
 }

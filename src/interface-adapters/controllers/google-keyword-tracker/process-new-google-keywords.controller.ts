@@ -2,8 +2,9 @@
 import { getInjection } from "../../../di/container";
 import { db } from "../../../infrastructure/db";
 
-import { ProcessGoogleKeywordsUseCase } from "../../../application/use-cases/process-google-keywords.use-case";
 import { processNewGoogleKeywordUseCase } from "../../../application/use-cases/process-keywords/process-new-google-keywords.use-case";
+import { splitAndTrimKeywords } from "../../../utils/string.utils";
+import { InputParseError } from "../../../entities/errors/common";
 
 const USER = {
   id: 'cm10yfeyl0002mm14hb2f5190',
@@ -18,7 +19,8 @@ const USER = {
   updatedAt: new Date('2024-09-12T21:09:40.414Z')
 };
 
-async function processGoogleKeywordsController() {
+async function processNewGoogleKeywordsController(keywordsSting: string) {
+  // TODO: needs to go to authenticationService
   const usersRepository = getInjection('IUsersRepository');
   const user = await usersRepository.getById(USER.id);
 
@@ -27,31 +29,35 @@ async function processGoogleKeywordsController() {
   }
 
   const googleKeywordTrackerId = 'cm10ys4200000q48b5bvyzw2a';
-  const keywords = [
-    'Eureka mignon',
-    'Eureka mignon specialita',
-    'Rocket appartamento',
-  ];
 
 
-  // TODO: Format keywords to lower case 
+  // Split and trim keywords
+  const stingsArray = splitAndTrimKeywords(keywordsSting);
+  console.log('stingsArray', stingsArray);
   
 
-  // TODO: Check if keywords are not empty
+  // Format keywords to lower case 
+  const keywords = stingsArray.map(keyword => keyword.toLowerCase());
+  
 
-  const serperApi = getInjection('ISerperApi');
-  const googleKeywordTrackerRepository = getInjection('IGoogleKeywordTrackerRepository');
-  const WebsiteRepository = getInjection('IWebsiteRepository');
-  try {
-    const result = await processNewGoogleKeywordUseCase(googleKeywordTrackerId, keywords, user);
-
-  } catch (error) {
-    throw error;
-    
+  // Check if keywords are not empty
+  if (keywords.length === 0) {
+    throw new InputParseError('Keywords array is empty');
   }
+
+
+  const result = await processNewGoogleKeywordUseCase(googleKeywordTrackerId, keywords, user);    
 }
 
-processGoogleKeywordsController()
+
+
+// const keywords = [
+//   'Eureka mignon',
+//   'Eureka mignon specialita',
+//   'Rocket appartamento',
+// ];
+
+processNewGoogleKeywordsController('Eureka mignon\nEureka mignon specialita\n\nRocket appartamento')
   .catch(e => {
     throw e;
   })

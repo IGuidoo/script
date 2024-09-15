@@ -31,3 +31,17 @@ export const googleKeywordTrackerStatsSchema = selectGoogleKeywordTrackerStatsCo
 });
 
 export type GoogleKeywordTrackerStats = z.infer<typeof selectGoogleKeywordTrackerStatsCoreSchema>;
+
+const googleKeywordTrackerStatsInsertSchema = selectGoogleKeywordTrackerStatsCoreSchema.pick({
+    googleKeywordTrackerToolId: true,
+    improved: true,
+    worsened: true,
+    total: true,
+    topThree: true,
+    topTen: true,
+    topHundred: true,
+    noChange: true,
+    notFound: true,
+    averagePosition: true,
+})
+export type GoogleKeywordTrackerStatsInsert = z.infer<typeof googleKeywordTrackerStatsInsertSchema>;

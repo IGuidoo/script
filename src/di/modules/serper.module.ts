@@ -10,7 +10,7 @@ import { MockSerperApi } from "../../infrastructure/api/serper.api.mock";
 // import { MockUsersRepository } from "../../infrastructure/repositories/users.repository.mock";
 
 const initializeModule = (bind: interfaces.Bind) => {
-  bind<ISerperApi>(DI_SYMBOLS.ISerperApi).to(MockSerperApi);
+  bind<ISerperApi>(DI_SYMBOLS.ISerperApi).to(SerperApi);
 
   // if (process.env.NODE_ENV === "test") {
   //   bind<ISerperApi>(DI_SYMBOLS.ISerperApi).to(MockSerperApi);

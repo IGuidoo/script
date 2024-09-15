@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "npx ts-node src/interface-adapters/controllers/google-keyword-tracker/process-google-keywords.controller.ts"
+    "dev": "npx ts-node src/interface-adapters/controllers/google-keyword-tracker/process-new-google-keywords.controller.ts",
+    "process-google-keywords": "npx ts-node src/infrastructure/cron/process-google-keywords.cron.ts"
   },
   "devDependencies": {
     "@types/node": "^22.5.4",

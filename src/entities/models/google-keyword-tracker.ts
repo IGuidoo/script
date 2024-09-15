@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Website } from "./website";
 import { GoogleKeywordTrackerCompetitor, selectGoogleKeywordTrackerCompetitorCoreSchema } from "./google-keyword-tracker/competitor";
+import { Location } from "./location";
 
 export type DayOfWeek = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
 
@@ -47,6 +48,7 @@ const selectGoogleKeywordTrackerWithCompetitorsSchema = selectGoogleKeywordTrack
 });
 export type GoogleKeywordTrackerWithCompetitors = z.infer<typeof selectGoogleKeywordTrackerWithCompetitorsSchema>;
 export type GoogleKeywordTrackerWithWebsite = z.infer<typeof googleKeywordTrackerSchema & { website: Website }>;
+export type GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation = z.infer<typeof googleKeywordTrackerSchema > & {website: Website, location: Location, competitors: GoogleKeywordTrackerCompetitor[]};
 
 // Backend operation schemas
 const insertGoogleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.pick({
@@ -55,6 +57,7 @@ const insertGoogleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.pi
     refresh: true,
 });
 export type GoogleKeywordTrackerInsert = z.infer<typeof insertGoogleKeywordTrackerSchema>;
+
 
 // Fort-end form input schema
 export const formInputCreateGoogleKeywordTrackerSchema = selectGoogleKeywordTrackerCoreSchema.extend({

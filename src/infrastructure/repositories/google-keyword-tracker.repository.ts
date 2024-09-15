@@ -1,8 +1,12 @@
 import { injectable } from "inversify";
-import { IGoogleKeywordTrackerRepository } from "../../application/repositories/google-keyword-tracker.repository.interface";
-import { GoogleKeywordTracker, GoogleKeywordTrackerWithCompetitors, GoogleKeywordTrackerWithWebsite } from "../../entities/models/google-keyword-tracker";
 import { db } from "../db";
+import { IGoogleKeywordTrackerRepository } from "../../application/repositories/google-keyword-tracker.repository.interface";
+
+import { SerpApiPeopleAsloAsk, SerpApiRelatedSearches, SiteLinks } from "../../application/api/serper.api.types";
+
+import { GoogleKeywordTracker, GoogleKeywordTrackerWithCompetitors, GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation, GoogleKeywordTrackerWithWebsite } from "../../entities/models/google-keyword-tracker";
 import { GoogleKeywordTrackerKeyword } from "../../entities/models/google-keyword-tracker/keyword";
+import { GoogleKeywordTrackerResult } from "../../entities/models/google-keyword-tracker/result";
 
 @injectable()
 export class GoogleKeywordTrackerRepository
@@ -69,6 +73,86 @@ export class GoogleKeywordTrackerRepository
       throw error;
     }
   }
+
+  async findByIdWithCompetitorsWebsiteAndLocation(id: string): Promise<GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation | null> {
+    try {
+      const googleKeywordTracker = await db.googleKeywordTrackerTool.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          competitors: true,
+          location: true,
+          website: true,
+        },
+      });
+
+      return googleKeywordTracker;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findAllWithCompetitorsWebsiteAndLocation(): Promise<GoogleKeywordTrackerWithCompetitorsWebsiteAndLocation[]> {
+    try {
+      const googleKeywordTracker = await db.googleKeywordTrackerTool.findMany({
+        include: {
+          competitors: true,
+          location: true,
+          website: true,
+        },
+      });
+
+      return googleKeywordTracker;
+    } catch (error) {
+      throw error
+    };
+  }
+
+  async findKeywordsByToolId(
+    googleKeywordTrackerId: string
+  ): Promise<GoogleKeywordTrackerKeyword[]> {
+    try {
+      const keywords = await db.googleKeywordTrackerKeyword.findMany({
+        where: {
+          googleKeywordTrackerToolId: googleKeywordTrackerId,
+        },
+      });
+
+      return keywords;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
+
+
+  async findLatestResultsByKeywordIds(keywordIds: string[]): Promise<GoogleKeywordTrackerResult[]> {
+    try {
+      const results = await db.googleKeywordTrackerResult.findMany({
+        where: {
+          keywordId: {
+            in: keywordIds,
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+
+      const formattedResults = results.map(result => ({
+        ...result,
+        relatedSearches: typeof result.relatedSearches === 'string' ? JSON.parse(result.relatedSearches) as SerpApiRelatedSearches[] : null,
+        peopleAlsoAsk: typeof result.peopleAlsoAsk === 'string' ? JSON.parse(result.peopleAlsoAsk) as SerpApiPeopleAsloAsk[] : null,
+        siteLinks: typeof result.siteLinks === 'string' ? JSON.parse(result.siteLinks) as SiteLinks[] : null,
+      }));
+
+      return formattedResults;
+    } catch (error) {
+      throw error;
+    }
+  }
   
   async addKeywords(
     googleKeywordTrackerId: string,
@@ -80,17 +164,8 @@ export class GoogleKeywordTrackerRepository
         googleKeywordTrackerToolId: googleKeywordTrackerId,
       }));
 
-      await db.googleKeywordTrackerKeyword.createMany({
+      const createdKeywords = await db.googleKeywordTrackerKeyword.createManyAndReturn({
         data: keywordObjects,
-      });
-
-      const createdKeywords = await db.googleKeywordTrackerKeyword.findMany({
-        where: {
-          googleKeywordTrackerToolId: googleKeywordTrackerId,
-          keyword: {
-            in: keywords,
-          }
-        },
       });
 
       return createdKeywords;

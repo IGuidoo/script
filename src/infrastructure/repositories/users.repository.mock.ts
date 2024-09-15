@@ -78,6 +78,16 @@ export class MockUsersRepository implements IUsersRepository {
     return user;
   }
 
+  async deductCredits(userId: string, credits: number): Promise<void> {
+    await this._initialized;
+    const user = this._users.find(user => user.id === userId);
+    if (user) {
+      user.credits -= credits;
+    } else {
+      throw new Error('User not found');
+    }
+  }
+
   async getByEmail(email: string): Promise<User | null> {
     await this._initialized;
     return this._users.find(user => user.email === email) || null;
