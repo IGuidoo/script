@@ -75,8 +75,8 @@ export class SerpResultMapper {
     return {
       ...userResult,
       firstPosition: previousResult.firstPosition,
-      bestPosition: calculateBestPosition(userResult.position, previousResult.bestPosition),
-      latestChange: calculateLatestChange(userResult.position, previousResult.position)
+      bestPosition: calculateBestPosition(previousResult.bestPosition, userResult.position),
+      latestChange: calculateLatestChange(previousResult.position, userResult.position),
     }    
   }
 
